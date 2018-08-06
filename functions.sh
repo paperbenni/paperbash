@@ -49,9 +49,10 @@ pb(){
         while IFS= read line
         do
           echo "updating sources for $line"
-          GITHUBNAME=${$line%/*}
+          GITHUBNAME=${line%/*}
           mkdir $GITHUBNAME
-          curl https://raw.githubusercontent.com/"$line"/master/packages.paperbash > "$line".paperbash
+          SOURCEREPO=${line#*/}
+          curl https://raw.githubusercontent.com/"$line"/master/packages.paperbash > "$SOURCEREPO".paperbash
 
         done <"$sourcefile"
 
@@ -61,9 +62,10 @@ pb(){
       sources)
       if nvim -v
       then
-        nvim .config/paperbash/sources.txt
+        nvim ~/.config/paperbash/sources.txt
       else
-        gedit .config/paperbash/sources.txt
+        touch ~/.config/paperbash/sources.txt
+        gedit ~/.config/paperbash/sources.txt
       fi
 
       ;;
