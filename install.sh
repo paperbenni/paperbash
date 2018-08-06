@@ -2,10 +2,14 @@
 pushd ~/
 install(){
   echo "sucessfully installed paperbash"
-  curl https://raw.githubusercontent.com/paperbenni/bash/master/setup.sh >> ~/.bashrc
-  cd .paperbenni
-  curl https://raw.githubusercontent.com/paperbenni/bash/master/version.txt > version.txt
-  echo "paperbenni/bash" >> .sources
+  curl https://raw.githubusercontent.com/paperbenni/paperbash/master/setup.sh >> ~/.bashrc
+  mkdir .paperbash
+  mkdir .config/paperbash
+  cd .config/paperbash
+  curl https://raw.githubusercontent.com/paperbenni/paperbash/master/version.txt > version.txt
+  curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh > functions.sh
+  echo paperbash/bash >> sources.txt
+  
 }
 
 if grep -q "paperbennibash01" ~/.bashrc
