@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pb(){
-  pushd ~/.paperbenni
+  pushd ~/.paperbash
   case $1 in
     install)
       #check if package is already installed
@@ -9,31 +9,34 @@ pb(){
       #generate file list for package from package sources 
       for PAPERBASHFILE in ../.config/paperbash/sources/*/*.paperbash #iterate through all name/repo paperbash files
       do
-      while IFS= read line
+
+      while IFS= read line #iterate through lines in PAPERBASHFILE
         do
           if [[ $line = *"$2/"* ]]
           then
-            echo $line >> "$2".paperbash
+          PACKAGEGITPATH=$(realpath --relative-to="~/.paperbash" "$PAPERBASHFILE")
+          PACKAGEGITREPO=${PACKAGEGITPATH%.paperbash} #this is the repo name
+          mkdir -p "$PACKAGEGITREPO"
+          # now in username/repo dir
+          cd $PACKAGEGITREPO
+          mkdir "$2" #make package name
+          CLEANLINE=${line#$2/}
+          cd "$2"
+          if [[ $CLEANLINE = *"/"* ]] #create directory
+          then
+            PBDIR=${CLEANLINE%/*}
+            if [ -e $PBDIR ]
+            then
+              mkdir -p $PBDIR
+            fi
+          fi
+
+          curl -o "$line" https://raw.githubusercontent.com/$PACKAGEGITREPO/master/"$line"
           fi
         done <"$PAPERBASHFILE"
 
         done
 
-        #download files from generated .paperbash file        
-        file="./$2.paperbash"
-        while IFS= read line
-        do
-	        echo "$line"
-          if [[ $line = *"/"* ]] && [ ! -e $PBDIR ]
-          then
-            PBDIR=${line%/*}
-            mkdir -p $PBDIR
-          fi
-          curl -o "$line" https://raw.githubusercontent.com/paperbenni/bash/master/"$line"
-        
-        done <"$file"
-
-        rm "$2".paperbash
         echo "done installing $2"
       ;;
 

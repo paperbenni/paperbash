@@ -1,6 +1,5 @@
 #!/bin/bash
 pushd ~/
-
 cd .config/paperbash
 source functions.sh
 cd ../../.paperbash
