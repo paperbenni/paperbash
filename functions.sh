@@ -1,78 +1,76 @@
 #!/bin/bash
 
-pb(){
-  pushd ~/.paperbash
-  case $1 in
-    install)
-      #check if package is already installed
+PAPERBASHDIR="$HOME/.config/paperbash"
 
-      #generate file list for package from package sources 
-      for PAPERBASHFILE in ../.config/paperbash/sources/*/*.paperbash #iterate through all name/repo paperbash files
-      do
+function pb() {
+	pushd ~/.paperbash >/dev/null
+	case $1 in
+	install)
+		echo "searching package sources for $2"
+		for PAPERBASHFILE in ../.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
+			if grep -q "$2/" "$PAPERBASHFILE"; then
+				echo "found in $PAPERBASHFILE"
 
-      while IFS= read line #iterate through lines in PAPERBASHFILE
-        do
-          if [[ $line = *"$2/"* ]]
-          then
-          PACKAGEGITPATH=$(realpath --relative-to="~/.paperbash" "$PAPERBASHFILE")
-          PACKAGEGITREPO=${PACKAGEGITPATH%.paperbash} #this is the repo name
-          mkdir -p "$PACKAGEGITREPO"
-          # now in username/repo dir
-          cd $PACKAGEGITREPO
-          mkdir "$2" #make package name
-          CLEANLINE=${line#$2/}
-          cd "$2"
-          if [[ $CLEANLINE = *"/"* ]] #create directory
-          then
-            PBDIR=${CLEANLINE%/*}
-            if [ -e $PBDIR ]
-            then
-              mkdir -p $PBDIR
-            fi
-          fi
+				GITREPO=$(realpath --relative-to="$PAPERBASHDIR" "$PAPERBASHFILE")
+				mkdir -p "$GITREPO/$2"
+				cd "$GITREPO/$2"
+				while IFS= read line; do #iterate through lines in PAPERBASHFILE
+					if [[ $line == *"$2/"* ]]; then #if line is part of package
+						CLEANLINE=${line#$2/} #line without package name
+						if [[ $CLEANLINE == *"/"* ]]; then #create directory
+							PBDIR=${CLEANLINE%/*}
+							echo "created dir for $PBDIR"
+							mkdir -p $PBDIR
+						fi
+						curl -o "$line" https://raw.githubusercontent.com/$GITREPO/master/"$line"
+					fi
+				done <"$PAPERBASHFILE"
+			else
+				echo "checked $PAPERBASHFILE"
+			fi
 
-          curl -o "$line" https://raw.githubusercontent.com/$PACKAGEGITREPO/master/"$line"
-          fi
-        done <"$PAPERBASHFILE"
+		done
 
-        done
+		echo "done installing $2"
+		;;
 
-        echo "done installing $2"
-      ;;
+	update)
 
-      update)
+		#download .paperbash files from sources.txt
+		cd ~/.config/paperbash/sources
+		sourcefile="../sources.txt"
+		while IFS= read line; do
+			echo "updating sources for $line"
+			mkdir -p $line
+			cd $line
+			curl https://raw.githubusercontent.com/"$line"/master/packages.paperbash >packages.paperbash
+			cd ~/.config/paperbash/sources
+			echo "updated sources for $line"
+		done <"$sourcefile"
 
+		;;
 
-        #download .paperbash files from sources.txt
-        cd ~/.config/paperbash/sources
-        sourcefile="../sources.txt"
-        while IFS= read line
-        do
-          echo "updating sources for $line"
-          GITHUBNAME=${line%/*}
-          mkdir $GITHUBNAME
-          SOURCEREPO=${line#*/}
-          curl https://raw.githubusercontent.com/"$line"/master/packages.paperbash > "$SOURCEREPO".paperbash
+	sources)
+		echo "editing source file"
+		if nvim -v; then
+			nvim ~/.config/paperbash/sources.txt
+		else
+			touch ~/.config/paperbash/sources.txt
+			gedit ~/.config/paperbash/sources.txt
+		fi
 
-        done <"$sourcefile"
-
-
-
-      ;;
-      sources)
-      if nvim -v
-      then
-        nvim ~/.config/paperbash/sources.txt
-      else
-        touch ~/.config/paperbash/sources.txt
-        gedit ~/.config/paperbash/sources.txt
-      fi
-
-      ;;
-
-      *)
-          echo "Command not found"
-      ;;
-esac
-popd
+		;;
+	addsource)
+		if grep -q "$2" "$PAPERBASHDIR/sources.txt"; then
+			echo "source already installed"
+		else
+			echo "$2" >>$PAPERBASHDIR/sources.txt
+			echo "installed source $2" #weiter
+		fi
+		;;
+	*)
+		echo "Command not found"
+		;;
+	esac
+	popd >/dev/null
 }
