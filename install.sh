@@ -7,6 +7,6 @@ mkdir .config/paperbash
 cd .config/paperbash
 curl https://raw.githubusercontent.com/paperbenni/paperbash/master/version.txt >version.txt
 curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh >functions.sh
-echo "paperbash/bash" >>sources.txt
+echo "paperbenni/bash" >>sources.txt
 mkdir sources
 popd
