@@ -7,34 +7,28 @@ function pb() {
 	install)
 		pushd ~/.paperbash
 		echo "searching package sources for $2"
-		for PAPERBASHFILE in ../.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
+		for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
 			if grep -q "$2/" "$PAPERBASHFILE"; then
-				GITREPO=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
+				GITPATH=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
+				GITREPO=${GITPATH%/packages.paperbash}
 				echo "found in $GITREPO"
 				echo true >.bashfound
 				mkdir -p "$GITREPO/$2"
-				cd "$GITREPO/$2"
+				echo "created package folder"
+				cd "$GITREPO"
 
 				while IFS= read line; do #iterate through lines in PAPERBASHFILE
-
 					if [[ "$line" =~ $2/* ]]; then
-
-						CLEANLINE=${line#$2/} #line without package name
-
-						if [[ "$CLEANLINE" =~ */* ]]; then
-							PBDIR=${CLEANLINE%/*}
-							echo "created dir for $PBDIR"
-							mkdir -p $PBDIR
-						fi
-						curl -o "$line" https://raw.githubusercontent.com/$GITREPO/master/"$line"
+						curl --create-dirs -o "$line" https://raw.githubusercontent.com/$GITREPO/master/"$line"
 					fi
 				done <"$PAPERBASHFILE"
 			else
 				echo "checked $PAPERBASHFILE"
 			fi
 
-			if [ -e .bashfound ]; then
+			if [ -e ../bashfound ]; then
 				echo "done installing $2"
+				rm .bashfound
 			else
 				echo "$2 not found"
 			fi
@@ -43,6 +37,13 @@ function pb() {
 
 		popd
 		;;
+
+	remove)
+		echo "uninstalling $2"
+		cd ~/.paperbash
+		rm -rf "$2"
+		echo "successfully uninstalled $2"
+	;;
 
 	update)
 
@@ -58,7 +59,7 @@ function pb() {
 			echo "updated sources for $line"
 		done <"$sourcefile"
 		popd
-		
+
 		;;
 
 	sources)
@@ -80,7 +81,7 @@ function pb() {
 		fi
 		;;
 
-	remsource)
+	rmsource)
 		sed -i "/$2/d" "$PAPERBASHDIR"/sources.txt
 		echo "removed source $2"
 		;;
@@ -88,7 +89,17 @@ function pb() {
 	upgrade)
 		echo "upgrading functions" #weiter
 		curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh >~/.config/paperbash/functions.sh
-
+		;;
+	help)
+		echo "usage: pb [
+			install
+			sources
+			help
+			upgrade
+			addsource
+			rmsource
+			uodate
+			]"
 		;;
 	*)
 		echo "Command not found"
