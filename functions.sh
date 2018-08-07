@@ -3,17 +3,18 @@
 PAPERBASHDIR="$HOME/.config/paperbash"
 
 function pb() {
-	pushd ~/.paperbash >/dev/null
 	case $1 in
 	install)
+		pushd ~/.paperbash
 		echo "searching package sources for $2"
 		for PAPERBASHFILE in ../.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
 			if grep -q "$2/" "$PAPERBASHFILE"; then
-				echo "found in $PAPERBASHFILE"
-
 				GITREPO=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
+				echo "found in $GITREPO"
+				echo true >.bashfound
 				mkdir -p "$GITREPO/$2"
 				cd "$GITREPO/$2"
+
 				while IFS= read line; do #iterate through lines in PAPERBASHFILE
 
 					if [[ "$line" =~ $2/* ]]; then
@@ -32,15 +33,21 @@ function pb() {
 				echo "checked $PAPERBASHFILE"
 			fi
 
+			if [ -e .bashfound ]; then
+				echo "done installing $2"
+			else
+				echo "$2 not found"
+			fi
+
 		done
 
-		echo "done installing $2"
+		popd
 		;;
 
 	update)
 
 		#download .paperbash files from sources.txt
-		cd ~/.config/paperbash/sources
+		pushd ~/.config/paperbash/sources
 		sourcefile="../sources.txt"
 		while IFS= read line; do
 			echo "updating sources for $line"
@@ -50,7 +57,8 @@ function pb() {
 			cd ~/.config/paperbash/sources
 			echo "updated sources for $line"
 		done <"$sourcefile"
-
+		popd
+		
 		;;
 
 	sources)
@@ -72,6 +80,11 @@ function pb() {
 		fi
 		;;
 
+	remsource)
+		sed -i "/$2/d" "$PAPERBASHDIR"/sources.txt
+		echo "removed source $2"
+		;;
+
 	upgrade)
 		echo "upgrading functions" #weiter
 		curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh >~/.config/paperbash/functions.sh
@@ -81,5 +94,4 @@ function pb() {
 		echo "Command not found"
 		;;
 	esac
-	popd >/dev/null
 }
