@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd ~/
+pushd ~/ > /dev/null
 cd .config/paperbash
 source functions.sh
 
@@ -10,4 +10,4 @@ for FILE in $(find . -name '*.sh'); do
 	fi
 	source "$FILE"
 done
-popd
+popd > /dev/null
