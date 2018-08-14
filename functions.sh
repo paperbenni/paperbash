@@ -101,8 +101,47 @@ function pb() {
 			uodate
 			]"
 		;;
+	debug)
+		if [ ! -n "$2" ]
+		then
+			echo "usage: pb debug [ on or off ]"
+			exit
+		fi
+		if [ "$2" -eq "on" ] || [ "$2" -eq "enable" ]
+		then
+			echo "true" > ~/.config/paperbash/.paperdebug
+			echo "debugging mode for paperbash enabled"
+		else
+
+			if [ -e ~/.config/paperbash/.paperdebug ]
+			then
+				rm ~/.config/paperbash/.paperdebug
+				echo "debugging mode for paperbash disabled"
+			else
+				echo "debugging mode already disabled"
+			fi
+		fi
+
+		;;
+	reset)
+		pushd ~/
+		if curl "https://gist.githubusercontent.com/marioBonales/1637696/raw/337f7b60d4e3d9e887a0206dec6a737e94cdd26e/.bashrc" > .paperbashrc
+		then
+			echo "beginning reset"
+		else
+			echo "download failed"
+			exit
+		fi
+		rm -rf .config/paperbash
+		rm -rf .paperbash
+		rm .bashrc
+		mv .paperbashrc .bashrc
+		curl "https://raw.githubusercontent.com/paperbenni/paperbash/master/install.sh" | bash
+
+		popd
+		;;
 	*)
-		echo "Command not found"
+		echo "paperbash Command not found"
 		;;
 	esac
 }
