@@ -1,7 +1,8 @@
 #!/bin/bash
 
+	RAWGITHUB="https://raw.githubusercontent.com/paperbenni/paperbash/master"
 
-	PAPERPACKAGES=$(curl https://raw.githubusercontent.com/paperbenni/paperbash/master/required.txt)
+	PAPERPACKAGES=$(curl "$RAWGITHUB/required.txt")
 
 if apt -v > /dev/null
 then
@@ -39,12 +40,15 @@ fi
 
 pushd ~/
 echo "sucessfully installed paperbash"
-curl https://raw.githubusercontent.com/paperbenni/paperbash/master/setup.sh >>~/.bashrc
+curl "$RAWGITHUB/setup.sh" >>~/.bashrc
 mkdir .paperbash
 mkdir .config/paperbash
 cd .config/paperbash
-curl https://raw.githubusercontent.com/paperbenni/paperbash/master/version.txt >version.txt
-curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh >functions.sh
+curl "$RAWGITHUB/version.txt" >version.txt
+curl "$RAWGITHUB/functions.sh" >functions.sh
+mkdir functions
+curl "$RAWGITHUB/functions/install.sh" >functions/install.sh
+
 if [ -e sources.txt ]; then
 	echo "leaving existing sources"
 else

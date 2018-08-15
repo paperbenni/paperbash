@@ -5,39 +5,8 @@ PAPERBASHDIR="$HOME/.config/paperbash"
 function pb() {
 	case $1 in
 	install)
-		pushd ~/.paperbash
-		echo "searching package sources for $2"
-		for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
-			if grep -q "$2/" "$PAPERBASHFILE"; then
-				GITPATH=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
-				GITREPO=${GITPATH%/packages.paperbash}
-				echo "found in $GITREPO"
-				echo true >.bashfound
-				mkdir -p "$GITREPO/$2"
-				echo "created package folder"
-				cd "$GITREPO"
-
-				while IFS= read line; do #iterate through lines in PAPERBASHFILE
-					if [[ "$line" =~ $2/* ]]; then
-						curl --create-dirs -o "$line" https://raw.githubusercontent.com/$GITREPO/master/"$line"
-					fi
-				done <"$PAPERBASHFILE"
-			else
-				echo "checked $PAPERBASHFILE"
-			fi
-
-			if [ -e ../bashfound ]; then
-				echo "done installing $2"
-				rm .bashfound
-			else
-				echo "$2 not found"
-			fi
-
-		done
-
-		popd
-		;;
-
+		$PAPERBASHDIR/functions/install.sh "$2"
+	;;
 	remove)
 		echo "uninstalling $2"
 		cd ~/.paperbash
