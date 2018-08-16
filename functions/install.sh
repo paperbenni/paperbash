@@ -1,5 +1,6 @@
 #!/bin/bash
 pushd ~/.paperbash
+RAWGIT=https://raw.githubusercontent.com
 echo "searching package sources for $1"
 for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
 	if grep -q "$1/" "$PAPERBASHFILE"; then
@@ -13,7 +14,16 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterat
 
 		while IFS= read line; do #iterate through lines in PAPERBASHFILE
 			if [[ "$line" =~ $1/* ]]; then
-				curl --create-dirs -o "$line" https://raw.githubusercontent.com/$GITREPO/master/"$line"
+				if [[ "$line" =~ $1/*paperref ]]
+				then
+					FILEURL=$(curl "$RAWGIT/$GITREPO/master/$line")
+
+					REALFILENAME=${line%.paperref}
+					curl --create-dirs -o "$REALFILENAME" "$FILEURL"
+				else
+					curl --create-dirs -o "$line" $RAWGIT/$GITREPO/master/"$line"
+
+				fi
 			fi
 		done <"$PAPERBASHFILE"
 	else
