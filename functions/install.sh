@@ -2,12 +2,13 @@
 pushd ~/.paperbash
 RAWGIT=https://raw.githubusercontent.com
 echo "searching package sources for $1"
+cat .bashfound > /dev/null && rm .bashfound
 for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
 	if grep -q "$1/" "$PAPERBASHFILE"; then
 		GITPATH=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
 		GITREPO=${GITPATH%/packages.paperbash}
 		echo "found in $GITREPO"
-		echo true >.bashfound
+		echo true >~/.paperbash/.bashfound
 		mkdir -p "$GITREPO/$1"
 		echo "created package folder"
 		pushd "$GITREPO"
@@ -30,11 +31,17 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterat
 		echo "checked $PAPERBASHFILE"
 	fi
 	popd
-	if [ -e ./bashfound ]; then
+	if [ -e ~/.paperbash/.bashfound ]; then
 		echo "done installing $1"
-		rm .bashfound
+		rm ~/.paperbash/.bashfound
 	else
 		echo "$1 not found"
+		if apt show "$1"
+		then
+			echo "trying apt"
+			sudo apt update
+			sudo apt install -y "$1"
+		fi
 	fi
 
 done

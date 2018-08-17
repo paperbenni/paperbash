@@ -1,6 +1,9 @@
 #!/bin/bash
 
 PAPERBASHDIR="$HOME/.config/paperbash"
+PAPERGITHUB="https://raw.githubusercontent.com/paperbenni/paperbash/master"
+RAWGITHUB="https://raw.githubusercontent.com"
+EDITOR=nvim
 
 function pb() {
 	case $1 in
@@ -23,7 +26,7 @@ function pb() {
 			echo "updating sources for $line"
 			mkdir -p $line
 			cd $line
-			curl https://raw.githubusercontent.com/"$line"/master/packages.paperbash >packages.paperbash
+			curl "$RAWGITHUB/$line/master/packages.paperbash >packages.paperbash"
 			cd ~/.config/paperbash/sources
 			echo "updated sources for $line"
 		done <"$sourcefile"
@@ -57,7 +60,8 @@ function pb() {
 
 	upgrade)
 		echo "upgrading functions" #weiter
-		curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh >~/.config/paperbash/functions.sh
+		curl "$PAPERGITHUB/functions.sh" >~/.config/paperbash/functions.sh
+		curl "$PAPERGITHUB/functions/install.sh" >~/.config/paperbash/functions/install.sh
 		;;
 	help)
 		echo "usage: pb [
@@ -105,7 +109,7 @@ function pb() {
 		rm -rf .paperbash
 		rm .bashrc
 		mv .paperbashrc .bashrc
-		curl "https://raw.githubusercontent.com/paperbenni/paperbash/master/install.sh" | bash
+		curl "$PAPERGITHUB/master/install.sh" | bash
 
 		popd
 		;;
