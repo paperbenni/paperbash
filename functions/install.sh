@@ -25,7 +25,7 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterat
 					curl --create-dirs -o "$line" $RAWGIT/$GITREPO/master/"$line"
 
 				fi
-				if [[ "$line" =~ $1/*paperpackage ]]
+				if [[ "$line" =~ $1/*apt.paperpackage ]]
 				then
 					PACKAGELIST=$(curl "$RAWGIT/$GITREPO/master/$line")
 					for PACKAGE in $PACKAGELIST
@@ -37,6 +37,15 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterat
 							continue
 						fi
 
+					done
+				fi
+
+
+				if [[ "$line" =~ $1/*apk.paperpackage ]]
+				then
+					PACKAGELIST=$(curl "$RAWGIT/$GITREPO/master/$line")
+					for PACKAGE in $PACKAGELIST
+					do
 						if apk -v > /dev/null
 						then
 							sudo apk update
