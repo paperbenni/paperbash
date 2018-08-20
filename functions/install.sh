@@ -25,6 +25,27 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterat
 					curl --create-dirs -o "$line" $RAWGIT/$GITREPO/master/"$line"
 
 				fi
+				if [[ "$line" =~ $1/*paperpackage ]]
+				then
+					PACKAGELIST=$(curl "$RAWGIT/$GITREPO/master/$line")
+					for PACKAGE in $PACKAGELIST
+					do
+						if apt -v > /dev/null
+						then
+							sudo apt update
+							sudo apt install -y $PACKAGE
+							continue
+						fi
+
+						if apk -v > /dev/null
+						then
+							sudo apk update
+							sudo apt add $PACKAGE
+							continue
+						fi
+
+					done
+				fi
 			fi
 		done <"$PAPERBASHFILE"
 	else

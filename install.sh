@@ -40,12 +40,18 @@ fi
 
 pushd ~/
 echo "sucessfully installed paperbash"
-curl "$RAWGITHUB/setup.sh" >>~/.bashrc
+if (grep 'source ~/.config/paperbash/setup.sh || echo paperbash corrupted' ~/.bashrc)
+then
+	echo 'bashrc is already setup'
+else
+	echo 'source ~/.config/paperbash/setup.sh || echo paperbash corrupted' >>~/.bashrc
+fi
 mkdir .paperbash
 mkdir .config/paperbash
 cd .config/paperbash
 curl "$RAWGITHUB/version.txt" >version.txt
 curl "$RAWGITHUB/functions.sh" >functions.sh
+curl "$RAWGITHUB/setup.sh" >setup.sh
 mkdir functions
 curl "$RAWGITHUB/functions/install.sh" >functions/install.sh
 

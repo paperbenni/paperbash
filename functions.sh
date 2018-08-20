@@ -8,7 +8,7 @@ EDITOR=nvim
 function pb() {
 	case $1 in
 	install)
-		$PAPERBASHDIR/functions/install.sh "$2"
+		$PAPERBASHDIR/functions/install.sh "$2" || (curl "$PAPERGITHUB/functions/install.sh" > $PAPERBASHDIR/functions/install.sh && $PAPERBASHDIR/functions/install.sh "$2")
 	;;
 	remove)
 		echo "uninstalling $2"
@@ -31,6 +31,25 @@ function pb() {
 			echo "updated sources for $line"
 		done <"$sourcefile"
 		popd
+
+		;;
+
+	disable)
+
+		for DIR in ~/.paperbash/*/*
+		do
+			if [ $DIR = "$2" ]
+			then
+				for SHFILE in $(find "$DIR")
+				do
+					if [ $SHFILE = "*.sh" ]
+					then
+						mv "$SHFILE" "$SHFILE.paperdisable"
+					fi
+				done
+			fi
+		done
+		echo "disabled $2 please restart bash for the changes to apply"
 
 		;;
 
@@ -80,7 +99,7 @@ function pb() {
 			echo "usage: pb debug [ on or off ]"
 			exit
 		fi
-		if [ "$2" -eq "on" ] || [ "$2" -eq "enable" ]
+		if [ "$2" = "on" ] || [ "$2" = "enable" ]
 		then
 			echo "true" > ~/.config/paperbash/.paperdebug
 			echo "debugging mode for paperbash enabled"
