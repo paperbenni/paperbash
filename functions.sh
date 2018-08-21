@@ -8,14 +8,14 @@ EDITOR=nvim
 function pb() {
 	case $1 in
 	install)
-		$PAPERBASHDIR/functions/install.sh "$2" || (curl "$PAPERGITHUB/functions/install.sh" > $PAPERBASHDIR/functions/install.sh && $PAPERBASHDIR/functions/install.sh "$2")
-	;;
+		$PAPERBASHDIR/functions/install.sh "$2" || (curl "$PAPERGITHUB/functions/install.sh" >$PAPERBASHDIR/functions/install.sh && $PAPERBASHDIR/functions/install.sh "$2")
+		;;
 	remove)
 		echo "uninstalling $2"
 		cd ~/.paperbash
 		rm -rf "$2"
 		echo "successfully uninstalled $2"
-	;;
+		;;
 
 	update)
 
@@ -36,14 +36,10 @@ function pb() {
 
 	disable)
 
-		for DIR in ~/.paperbash/*/*
-		do
-			if [ $DIR = "$2" ]
-			then
-				for SHFILE in $(find "$DIR")
-				do
-					if [ $SHFILE = "*.sh" ]
-					then
+		for DIR in ~/.paperbash/*/*; do
+			if [ $DIR = "$2" ]; then
+				for SHFILE in $(find "$DIR"); do
+					if [ $SHFILE = "*.sh" ]; then
 						mv "$SHFILE" "$SHFILE.paperdisable"
 					fi
 				done
@@ -94,19 +90,16 @@ function pb() {
 			]"
 		;;
 	debug)
-		if [ ! -n "$2" ]
-		then
+		if [ ! -n "$2" ]; then
 			echo "usage: pb debug [ on or off ]"
 			exit
 		fi
-		if [ "$2" = "on" ] || [ "$2" = "enable" ]
-		then
-			echo "true" > ~/.config/paperbash/.paperdebug
+		if [ "$2" = "on" ] || [ "$2" = "enable" ]; then
+			echo "true" >~/.config/paperbash/.paperdebug
 			echo "debugging mode for paperbash enabled"
 		else
 
-			if [ -e ~/.config/paperbash/.paperdebug ]
-			then
+			if [ -e ~/.config/paperbash/.paperdebug ]; then
 				rm ~/.config/paperbash/.paperdebug
 				echo "debugging mode for paperbash disabled"
 			else
@@ -117,8 +110,7 @@ function pb() {
 		;;
 	reset)
 		pushd ~/
-		if curl "https://gist.githubusercontent.com/marioBonales/1637696/raw/337f7b60d4e3d9e887a0206dec6a737e94cdd26e/.bashrc" > .paperbashrc
-		then
+		if curl "https://gist.githubusercontent.com/marioBonales/1637696/raw/337f7b60d4e3d9e887a0206dec6a737e94cdd26e/.bashrc" >.paperbashrc; then
 			echo "beginning reset"
 		else
 			echo "download failed"

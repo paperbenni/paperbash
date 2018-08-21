@@ -1,9 +1,14 @@
 #!/bin/bash
 pushd ~/.paperbash
 RAWGIT=https://raw.githubusercontent.com
+
+
+
 echo "searching package sources for $1"
-cat .bashfound > /dev/null && rm .bashfound
-for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterate through all name/repo paperbash files
+#delete .bashfound if existing
+cat .bashfound >/dev/null && rm .bashfound
+#iterate through all name/repo paperbash files
+for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do
 	if grep -q "$1/" "$PAPERBASHFILE"; then
 		GITPATH=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
 		GITREPO=${GITPATH%/packages.paperbash}
@@ -13,61 +18,74 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterat
 		echo "created package folder"
 		pushd "$GITREPO"
 
-		while IFS= read line; do #iterate through lines in PAPERBASHFILE
+		#iterate through lines in PAPERBASHFILE
+		while IFS= read line; do
 			if [[ "$line" =~ $1/* ]]; then
-				if [[ "$line" =~ $1/*paperref ]]
-				then
+				if [[ "$line" =~ $1/*paperref ]]; then
 					FILEURL=$(curl "$RAWGIT/$GITREPO/master/$line")
 
 					REALFILENAME=${line%.paperref}
 					curl --create-dirs -o "$REALFILENAME" "$FILEURL"
 				else
 					curl --create-dirs -o "$line" $RAWGIT/$GITREPO/master/"$line"
-
-				fi
-				if [[ "$line" =~ $1/*apt.paperpackage ]]
-				then
-					PACKAGELIST=$(curl "$RAWGIT/$GITREPO/master/$line")
-					for PACKAGE in $PACKAGELIST
-					do
-						if apt -v > /dev/null
-						then
-							sudo apt update
-							sudo apt install -y $PACKAGE
-							continue
-						fi
-
-					done
 				fi
 
-
-				if [[ "$line" =~ $1/*apk.paperpackage ]]
-				then
-					PACKAGELIST=$(curl "$RAWGIT/$GITREPO/master/$line")
-					for PACKAGE in $PACKAGELIST
-					do
-						if apk -v > /dev/null
-						then
-							sudo apk update
-							sudo apt add $PACKAGE
-							continue
-						fi
-
-					done
-				fi
 			fi
+
 		done <"$PAPERBASHFILE"
 	else
 		echo "checked $PAPERBASHFILE"
 	fi
+
+	for CHECKFILE in $(find .); do
+		case "$CHECKFILE" in
+		*.paperinstall)
+			bash "$CHECKFILE"
+			;;
+		*/apk.paperpackage)
+			PACKAGELIST=$(cat "$CHECKFILE")
+			for PACKAGE in $PACKAGELIST; do
+				if apk -v >/dev/null; then
+					sudo apk update
+					sudo apk add $PACKAGE
+				fi
+
+			done
+			;;
+		*/apt.paperpackage)
+			PACKAGELIST=$(cat "$CHECKFILE")
+			for PACKAGE in $PACKAGELIST; do
+				if apk -v >/dev/null; then
+					sudo apt-get update
+					sudo apt-get install -y $PACKAGE
+				fi
+
+			done
+			;;
+		*/npm.paperpackage)
+			~/.config/paperbash/functions/pkginstall.sh nodejs
+			~/.config/paperbash/functions/pkginstall.sh npm
+			PACKAGELIST=$(cat "$CHECKFILE")
+			for PACKAGE in $PACKAGELIST; do
+				if npm -v >/dev/null; then
+					sudo npm install -g $PACKAGE
+				fi
+
+			done
+			;;
+
+		esac
+
+	done
+
 	popd
+	#try installing package with normal package manager
 	if [ -e ~/.paperbash/.bashfound ]; then
 		echo "done installing $1"
 		rm ~/.paperbash/.bashfound
 	else
 		echo "$1 not found"
-		if apt show "$1"
-		then
+		if apt show "$1"; then
 			echo "trying apt"
 			sudo apt update
 			sudo apt install -y "$1"
@@ -77,4 +95,3 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do #iterat
 done
 
 popd
-

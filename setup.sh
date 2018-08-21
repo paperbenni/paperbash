@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd ~/ > /dev/null
+pushd ~/ >/dev/null
 cd .config/paperbash || (mkdir -p .config/paperbash && cd .config/paperbash)
 
 source functions.sh || (curl -o functions.sh "https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh" && source functions.sh)
@@ -11,4 +11,4 @@ for FILE in $(find . -name '*.sh'); do
 	fi
 	source "$FILE"
 done
-popd > /dev/null
+popd >/dev/null
