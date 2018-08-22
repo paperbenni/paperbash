@@ -2,13 +2,12 @@
 pushd ~/.paperbash
 RAWGIT=https://raw.githubusercontent.com
 
-
-
 echo "searching package sources for $1"
 #delete .bashfound if existing
 cat .bashfound >/dev/null && rm .bashfound
+
 #iterate through all name/repo paperbash files
-for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do
+for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
 	if grep -q "$1/" "$PAPERBASHFILE"; then
 		GITPATH=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
 		GITREPO=${GITPATH%/packages.paperbash}
@@ -21,7 +20,7 @@ for PAPERBASHFILE in $HOME/.config/paperbash/sources/*/*/*.paperbash; do
 		#iterate through lines in PAPERBASHFILE
 		while IFS= read line; do
 			if [[ "$line" =~ $1/* ]]; then
-				if [[ "$line" =~ $1/*paperref ]]; then
+				if [[ "$line" == $1/*paperref ]]; then
 					FILEURL=$(curl "$RAWGIT/$GITREPO/master/$line")
 
 					REALFILENAME=${line%.paperref}
