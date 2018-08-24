@@ -2,7 +2,6 @@
 
 PAPERBASHDIR="$HOME/.config/paperbash"
 PAPERGITHUB="https://raw.githubusercontent.com/paperbenni/paperbash/master"
-RAWGITHUB="https://raw.githubusercontent.com"
 EDITOR=nvim
 
 function pb() {
@@ -13,7 +12,8 @@ function pb() {
 	fi
 	if [ -e "~/.config/paperbash/functions/$1.sh" ]
 	then
-		bash ./"$1.sh"
+		shift
+		~/.config/paperbash/functions/"$1.sh" "$@"  || chmod +x "$PAPERBASHDIR/functions/$1.sh"
 	else
 		echo "command not found
 		searching github"

@@ -11,10 +11,6 @@ cd ..
 
 RAWGITHUB="https://raw.githubusercontent.com/paperbenni/paperbash/master"
 
-function gitget(){
-	curl -o "$1" "$RAWGITHUB/$1"
-}
-
 if apt -v >/dev/null; then
 	sudo apt update -y
 	sudo apt install -y git wget

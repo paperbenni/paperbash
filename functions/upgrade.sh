@@ -1,17 +1,14 @@
 #!/bin/bash
+source ~/.config/paperbash/veriables.sh
 if [ -n "$1" ]; then
 	echo "upgrading $1"
-    pushd ~/.paperbash
-    for DIR in ./*/*
-    do
-        if [ $DIR = "$1" ]
-        then
-            echo "upgrading $1"
-        fi
-    done
+	pushd ~/.paperbash
+	echo "upgrading $1"
+    #weiter
+	$PAPERFUNCTIONS/remove.sh "$1"
+	$PAPERFUNCTIONS/install.sh "$1"
 else
-	source ~/.config/paperbash/veriables.sh
-	echo "upgrading functions" #weiter
+	echo "upgrading functions"
 	cd .config/paperbash
 	git pull --depth=1
 fi
