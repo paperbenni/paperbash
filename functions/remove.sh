@@ -1,10 +1,11 @@
 #!/bin/bash
 echo "uninstalling $2"
-cd ~/.paperbash
+cd ~/.paperbash || echo "paperbash broken"
 if [ -e ./"$1" ]
 then
 	cd "$1"
 	if [ -e .paperdisable ]
+	then
 		bash .paperdisable
 	fi
 	rm -rf "$2"

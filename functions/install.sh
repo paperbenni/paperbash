@@ -26,7 +26,7 @@ for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
 					REALFILENAME=${line%.paperref}
 					curl --create-dirs -o "$REALFILENAME" "$FILEURL"
 				else
-					curl --create-dirs -o "$line" $RAWGIT/$GITREPO/master/"$line"
+					curl --create-dirs -o "$line" "$RAWGIT/$GITREPO/master/$line"
 				fi
 
 			fi
