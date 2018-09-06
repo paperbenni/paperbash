@@ -1,6 +1,6 @@
 #!/bin/bash
 pushd ~/.paperbash
-RAWGIT=https://raw.githubusercontent.com
+RAWGIT="https://raw.githubusercontent.com"
 
 echo "searching package sources for $1"
 #delete .bashfound if existing
@@ -46,9 +46,18 @@ for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
 			for PACKAGE in $PACKAGELIST; do
 				if apk -v >/dev/null; then
 					sudo apk update
-					sudo apk add $PACKAGE
+					sudo apk add "$PACKAGE"
 				fi
 
+			done
+			;;
+		*/gem.paperpackage)
+			~/.config/paperbash/functions/pkginstall.sh ruby-full
+			PACKAGELIST=$(cat "$CHECKFILE")
+			for PACKAGE in $PACKAGELIST; do
+				if gem -v >/dev/null; then
+					sudo gem install "$PACKAGE"
+				fi
 			done
 			;;
 		*/apt.paperpackage)
@@ -56,7 +65,7 @@ for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
 			for PACKAGE in $PACKAGELIST; do
 				if apk -v >/dev/null; then
 					sudo apt-get update
-					sudo apt-get install -y $PACKAGE
+					sudo apt-get install -y "$PACKAGE"
 				fi
 
 			done
@@ -67,7 +76,7 @@ for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
 			PACKAGELIST=$(cat "$CHECKFILE")
 			for PACKAGE in $PACKAGELIST; do
 				if npm -v >/dev/null; then
-					sudo npm install -g $PACKAGE
+					sudo npm install -g "$PACKAGE"
 				fi
 
 			done
