@@ -1,10 +1,25 @@
 #!/bin/bash
+if curl --version; then
+	echo "curl found"
+else
+	echo "install curl first"
+	exit
+fi
 
+echo "going to home dir"
 pushd ~
 mkdir .config/paperbash || echo "config already existing, reinstalling..."
 cd .config/paperbash
 
 rm -rf *
+if git --version; then
+	echo "installing git"
+	curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions/pkginstall.sh >pkginstall.sh
+	bash pkginstall.sh git
+else
+	echo "git found"
+fi
+
 git clone --depth=1 https://github.com/paperbenni/paperbash.git .
 cd "functions"
 chmod +x *.sh
