@@ -7,11 +7,10 @@ else
 fi
 
 echo "going to home dir"
-pushd ~
-mkdir .config/paperbash || echo "config already existing, reinstalling..."
-cd .config/paperbash
+pushd ~/
+mkdir .config/ || echo "config found"
+cd .config
 
-rm -rf *
 if git --version; then
 	echo "installing git"
 	curl https://raw.githubusercontent.com/paperbenni/paperbash/master/functions/pkginstall.sh >pkginstall.sh
@@ -20,8 +19,8 @@ else
 	echo "git found"
 fi
 
-git clone --depth=1 https://github.com/paperbenni/paperbash.git .
-cd "functions"
+git clone --depth=1 https://github.com/paperbenni/paperbash.git
+cd "paperbash/functions"
 chmod +x *.sh
 cd ..
 
