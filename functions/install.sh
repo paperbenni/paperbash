@@ -1,57 +1,21 @@
 #!/bin/bash
 pushd ~/.paperbash
-RAWGIT="https://raw.githubusercontent.com"
 
-echo "searching package sources for $1"
-#delete .bashfound if existing
-cat .bashfound >/dev/null && rm .bashfound
-
-#iterate through all name/repo paperbash files
-for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
-	if grep -q "$1/" "$PAPERBASHFILE"; then
-		GITPATH=$(realpath --relative-to="$PAPERBASHDIR/sources" "$PAPERBASHFILE")
-		GITREPO=${GITPATH%/packages.paperbash}
-		echo "found in $GITREPO"
-		echo true >~/.paperbash/.bashfound
-		mkdir -p "$GITREPO/$1"
-		echo "created package folder"
-		pushd "$GITREPO"
-
-		#iterate through lines in PAPERBASHFILE
-		while IFS= read line; do
-			if [[ "$line" =~ $1/* ]]; then
-				if [[ "$line" == $1/*paperref ]]; then
-					FILEURL=$(curl "$RAWGIT/$GITREPO/master/$line")
-
-					REALFILENAME=${line%.paperref}
-					curl --create-dirs -o "$REALFILENAME" "$FILEURL"
-				else
-					curl --create-dirs -o "$line" "$RAWGIT/$GITREPO/master/$line"
-				fi
-
-			fi
-
-		done <"$PAPERBASHFILE"
-	else
-		echo "checked $PAPERBASHFILE"
+while read p; do
+	echo "$p"
+	if ! git ls-remote https://github.com/"$p".git -q; then
+		echo "$p is an invalid repo"
+		exit 1
 	fi
 
-	for CHECKFILE in $(find .); do
-		case "$CHECKFILE" in
-		*.paperinstall)
-			bash "$CHECKFILE"
-			;;
-		*/apk.paperpackage)
-			PACKAGELIST=$(cat "$CHECKFILE")
-			for PACKAGE in $PACKAGELIST; do
-				if apk -v >/dev/null; then
-					sudo apk update
-					sudo apk add "$PACKAGE"
-				fi
+	svn export https://github.com/"$p"/trunk/"$1" "$HOME"/.cache/paperbash
+	cd $HOME/.cache/paperbash/"$1"
+	mv run ~/paperbin
+	mv start ~/paperstart
 
-			done
-			;;
-		*/gem.paperpackage)
+	for PACKAGE in ./*.paperpackage; do
+		case "$PAPER" in
+		gem.paperpackage)
 			~/.config/paperbash/functions/pkginstall.sh ruby-full
 			PACKAGELIST=$(cat "$CHECKFILE")
 			for PACKAGE in $PACKAGELIST; do
@@ -60,20 +24,16 @@ for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
 				fi
 			done
 			;;
-		*/apt.paperpackage)
-			PACKAGELIST=$(cat "$CHECKFILE")
-			for PACKAGE in $PACKAGELIST; do
-				if apk -v >/dev/null; then
-					sudo apt-get update
-					sudo apt-get install -y "$PACKAGE"
-				fi
-
-			done
+		trigger.paperpackage)
+			source $PAPER
 			;;
-		*/npm.paperpackage)
+		install.paperpackage)
+			$HOME/.config/paperbash/functions/pkginstall.sh $(cat $PAPER)
+			;;
+		npm.paperpackage)
 			~/.config/paperbash/functions/pkginstall.sh nodejs
 			~/.config/paperbash/functions/pkginstall.sh npm
-			PACKAGELIST=$(cat "$CHECKFILE")
+			PACKAGELIST=$(cat "$PAPER")
 			for PACKAGE in $PACKAGELIST; do
 				if npm -v >/dev/null; then
 					sudo npm install -g "$PACKAGE"
@@ -81,25 +41,21 @@ for PAPERBASHFILE in $HOME/.config/papersources/*/*/*.paperbash; do
 
 			done
 			;;
+		pip3.paperpackage)
+			~/.config/paperbash/functions/pkginstall.sh python-pip python-dev build-essential
+			PACKAGELIST=$(cat "$PAPER")
+			for PACKAGE in $PACKAGELIST; do
+
+				if pip --version; then
+					pip3 install --user "$PACKAGE"
+				fi
+			done
+			;;
 
 		esac
-
 	done
 
-	popd
-	#try installing package with normal package manager
-	if [ -e ~/.paperbash/.bashfound ]; then
-		echo "done installing $1"
-		rm ~/.paperbash/.bashfound
-	else
-		echo "$1 not found"
-		if apt show "$1"; then
-			echo "trying apt"
-			sudo apt update
-			sudo apt install -y "$1"
-		fi
-	fi
-
-done
+done \
+	<~/.config/paperbash/sources.txt
 
 popd

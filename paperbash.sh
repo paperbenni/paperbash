@@ -2,13 +2,16 @@
 pushd ~/ >/dev/null
 cd .config/paperbash || (mkdir -p .config/paperbash && cd .config/paperbash)
 
-source functions.sh 2> /dev/null || (curl -o functions.sh "https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh" && source functions.sh)
+source functions.sh 2>/dev/null || (curl -o functions.sh "https://raw.githubusercontent.com/paperbenni/paperbash/master/functions.sh" && source functions.sh)
 
-cd ../../.paperbash || echo "paperbash is not correctly installed"
-for FILE in $(find . -name '*.sh'); do
-	if [ -e .paperdebug ]; then
+cd paperstart
+for FILE in ./*; do
+	source "$FILE"
+	if [ -e "$HOME"/.paperdebug ]; then
 		echo "$FILE"
 	fi
-	source "$FILE"
 done
+
+export PATH=$PATH:$HOME/paperbin
+
 popd >/dev/null

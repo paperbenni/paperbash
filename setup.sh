@@ -1,4 +1,6 @@
 #!/bin/bash
+
+#checking and installing dependencies
 if curl --version; then
 	echo "curl found"
 else
@@ -8,6 +10,10 @@ fi
 
 echo "going to home dir"
 pushd ~/
+
+mkdir paperbin
+mkdir paperstart
+mkdir -p .cache/paperbash
 mkdir .config/ || echo "config found"
 cd .config
 
@@ -24,9 +30,7 @@ cd "paperbash/functions"
 chmod +x *.sh
 cd ..
 
-RAWGITHUB="https://raw.githubusercontent.com/paperbenni/paperbash/master"
-
-functions/pkginstall.sh git wget
+functions/pkginstall.sh git wget svn
 
 cd ~/
 
@@ -39,7 +43,8 @@ fi
 
 #setup package diretory
 mkdir .paperbash
-mkdir .config/papersources || (echo "reinstalling sources" && rm -rf .config/papersources/*)
+
+mkdir -p .config/papersources || (echo "reinstalling sources" && rm -rf .config/papersources && mkdir -p .config/papersources)
 cd .config/papersources
 
 if [ -e sources.txt ]; then
@@ -49,4 +54,8 @@ else
 fi
 
 mkdir sources
+echo "finished"
+
+source ~/.config/paperbash/paperbash.sh || echo paperbash corrupted
+
 popd
