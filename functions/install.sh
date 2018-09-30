@@ -1,7 +1,14 @@
 #!/bin/bash
+
+if [ ! -n "$1" ]
+then
+	echo "usage: pb install [package-name]"
+	exit 0
+fi
+
 pushd ~/.paperbash
 
-while read p; do
+while read -r p; do
 	echo "$p"
 	if ! git ls-remote https://github.com/"$p".git -q; then
 		echo "$p is an invalid repo"
@@ -9,11 +16,11 @@ while read p; do
 	fi
 
 	svn export https://github.com/"$p"/trunk/"$1" "$HOME"/.cache/paperbash
-	cd $HOME/.cache/paperbash/"$1"
+	cd "$HOME"/.cache/paperbash/"$1" || exit
 	mv run ~/paperbin
 	mv start ~/paperstart
 
-	for PACKAGE in ./*.paperpackage; do
+	for PAPER in ./*.paperpackage; do
 		case "$PAPER" in
 		gem.paperpackage)
 			~/.config/paperbash/functions/pkginstall.sh ruby-full
@@ -25,10 +32,10 @@ while read p; do
 			done
 			;;
 		trigger.paperpackage)
-			source $PAPER
+			source "$PAPER"
 			;;
 		install.paperpackage)
-			$HOME/.config/paperbash/functions/pkginstall.sh $(cat $PAPER)
+			"$HOME"/.config/paperbash/functions/pkginstall.sh "$(cat "$PAPER")"
 			;;
 		npm.paperpackage)
 			~/.config/paperbash/functions/pkginstall.sh nodejs
