@@ -10,6 +10,12 @@ if apk -v; then
 	sudo apk install "$@"
 fi
 
+if yum --version
+then
+	sudo yum update -y
+	sudo yum install -y "$@"
+fi
+
 if apt-get -v; then
 	for package in "$@"; do
 		if ! dpkg -s "$package"; then

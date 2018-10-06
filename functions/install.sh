@@ -17,8 +17,10 @@ while read -r p; do
 
 	svn export https://github.com/"$p"/trunk/"$1" "$HOME"/.cache/paperbash
 	cd "$HOME"/.cache/paperbash/"$1" || exit
-	mv run ~/paperbin
-	mv start ~/paperstart
+	mv "$1" ~/paperbin | echo "package has no executable"
+	mv "${1}start" ~/paperstart
+	cd ..
+	mv "$1" "$HOME/.paperbash"
 
 	for PAPER in ./*.paperpackage; do
 		case "$PAPER" in
@@ -32,7 +34,7 @@ while read -r p; do
 			done
 			;;
 		trigger.paperpackage)
-			source "$PAPER"
+			bash "$PAPER"
 			;;
 		install.paperpackage)
 			"$HOME"/.config/paperbash/functions/pkginstall.sh "$(cat "$PAPER")"
